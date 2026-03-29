@@ -1,25 +1,35 @@
-# This is a minimal example of how to use the LLaMEA algorithm with the Gemini LLM to generate optimization algorithms for the BBOB test suite.
+# This is a minimal example of how to use the LLaMEA algorithm with the OpenRouter LLM to generate optimization algorithms for the BBOB test suite.
 # We have to define the following components for LLaMEA to work:
 # - An evaluation function that executes the generated code and evaluates its performance.
 # - A task prompt that describes the problem to be solved.
 # - An LLM instance that will generate the code based on the task prompt.
 
 import os
-import pickle
 
+import logfire
 import numpy as np
+from dotenv import load_dotenv
 from ioh import get_problem, logger
 
-from llamea import Gemini_LLM, LLaMEA
+from llamea import LLaMEA, OpenRouter_LLM
 from llamea.utils import prepare_namespace, clean_local_namespace
 from misc import OverBudgetException, aoc_logger, correct_aoc
 
 if __name__ == "__main__":
+    load_dotenv()
+
+    logfire.configure(
+        send_to_logfire="if-token-present",
+        service_name="llamea-black-box-optimization",
+    )
+    logfire.instrument_openai()
+
     # Execution code starts here
-    api_key = os.getenv("GOOGLE_API_KEY")
-    ai_model = "gemini-2.5-flash"
-    experiment_name = "pop1-5"
-    llm = Gemini_LLM(api_key, ai_model)
+    api_key = os.getenv("OPENROUTER_API_KEY")
+    ai_model = os.getenv("OPENROUTER_MODEL", "gpt-4o")
+    if not api_key:
+        raise RuntimeError("OPENROUTER_API_KEY must be set in the environment or .env.")
+    llm = OpenRouter_LLM(api_key, ai_model)
 
     # We define the evaluation function that executes the generated algorithm (solution.code) on the BBOB test suite.
     # It should set the scores and feedback of the solution based on the performance metric, in this case we use mean AOCC.
@@ -97,6 +107,6 @@ if __name__ == "__main__":
             experiment_name=experiment_name,
             elitism=True,
             HPO=False,
-            budget=100
+            budget=20,
         )
         print(es.run())
