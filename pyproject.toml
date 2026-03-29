@@ -63,6 +63,8 @@ examples = [
     "iohinspector>=0.0.3,<0.0.4",
     "pymoosh==3.2",
     "pandas>=2.2.3,<3",
+    "logfire>=3,<4",
+    "python-dotenv>=1,<2",
 ]
 llm-extras = [
     "torch>=2.6.0,<3",
