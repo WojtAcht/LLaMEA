@@ -6,6 +6,7 @@ from .llm import (
     Multi_LLM,
     Ollama_LLM,
     OpenAI_LLM,
+    OpenRouter_LLM,
     LMStudio_LLM,
     MLX_LM_LLM,
 )
